@@ -62,7 +62,7 @@ export default function CoupleToggleSlider({
       {/* Pill-shaped track */}
       <div
         ref={trackRef}
-        className="relative w-full h-[145px] rounded-full overflow-hidden
+        className="relative w-full h-[110px] rounded-full overflow-hidden
           border border-white/30
           bg-white/10 backdrop-blur-[20px]
           shadow-[0_8px_32px_rgba(0,0,0,0.15)]"

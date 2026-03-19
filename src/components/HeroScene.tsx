@@ -44,7 +44,7 @@ export default function HeroScene() {
             <ParallaxClouds />
 
             {/* Toggle slider — positioned in the bottom 25% */}
-            <div className="absolute bottom-[8%] z-20 w-full flex items-center justify-center">
+            <div className="absolute bottom-[15%] z-20 w-full flex items-center justify-center">
               <CoupleToggleSlider
                 casualSrc={coupleCasual}
                 traditionalSrc={coupleTraditional}
