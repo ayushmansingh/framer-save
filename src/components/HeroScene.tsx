@@ -6,14 +6,15 @@ import asset1Video from "../assets/Asset1.mp4";
 import assetBVideo from "../assets/AssetB.mp4";
 import CoupleToggleSlider from "./CoupleToggleSlider";
 
-type Scene = "loading" | "intro" | "slider" | "video";
+type Scene = "loading" | "active" | "video";
 
 export default function HeroScene() {
   const progress = useMotionValue(0);
   const [scene, setScene] = useState<Scene>("loading");
+  const [showSlider, setShowSlider] = useState(false);
+  const [showSwipeText, setShowSwipeText] = useState(false);
   const bgVideoRef = useRef<HTMLVideoElement>(null);
   const assetBRef = useRef<HTMLVideoElement>(null);
-
   const hasStarted = useRef(false);
 
   // Wait for Asset1 video to be playing before showing anything — once only
@@ -26,20 +27,18 @@ export default function HeroScene() {
       if (hasStarted.current) return;
       hasStarted.current = true;
       vid.removeEventListener("playing", onPlaying);
-      setScene("intro");
+      setScene("active");
     };
 
     if (!vid.paused && vid.readyState >= 2) {
       hasStarted.current = true;
-      setScene("intro");
+      setScene("active");
       return;
     }
 
     vid.addEventListener("playing", onPlaying);
     return () => vid.removeEventListener("playing", onPlaying);
   }, []);
-
-  const introTimerFired = useRef(false);
 
   const handleSliderComplete = useCallback(() => {
     const bgVid = bgVideoRef.current;
@@ -80,15 +79,16 @@ export default function HeroScene() {
         }`}
       />
 
-      {/* Intro text overlay — only after video is playing */}
+      {/* Text + Slider overlay — persists until video plays */}
       <AnimatePresence>
-        {scene === "intro" && (
+        {scene === "active" && (
           <motion.div
-            key="intro"
-            className="absolute inset-0 z-20 flex items-center justify-center"
+            key="overlay"
+            className="absolute inset-0 z-20 flex flex-col items-center justify-center"
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6 }}
           >
+            {/* "Once upon a time / a guy met a girl" */}
             <div className="text-center px-8">
               <motion.p
                 className="text-black text-3xl md:text-5xl leading-relaxed drop-shadow-lg"
@@ -105,52 +105,56 @@ export default function HeroScene() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 1, ease: "easeOut" }}
+                onAnimationComplete={() => {
+                  // After second line finishes, show slider
+                  setTimeout(() => setShowSlider(true), 800);
+                }}
               >
                 a guy met a girl
               </motion.p>
-
-              <motion.p
-                className="text-black/70 text-lg md:text-2xl mt-12 drop-shadow-md"
-                style={{ fontFamily: "'Slight', cursive" }}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: [0, 1, 1, 0.6, 1] }}
-                transition={{ duration: 2, delay: 2.5, ease: "easeInOut" }}
-                onAnimationComplete={() => {
-                  if (introTimerFired.current) return;
-                  introTimerFired.current = true;
-                  setTimeout(() => setScene("slider"), 1500);
-                }}
-              >
-                Swipe to know more
-              </motion.p>
             </div>
+
+            {/* Slider — fades in after text */}
+            <AnimatePresence>
+              {showSlider && (
+                <motion.div
+                  key="slider"
+                  className="absolute bottom-[15%] w-full flex items-center justify-center"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  onAnimationComplete={() => {
+                    setTimeout(() => setShowSwipeText(true), 600);
+                  }}
+                >
+                  <CoupleToggleSlider
+                    casualSrc={coupleCasual}
+                    traditionalSrc={coupleTraditional}
+                    progress={progress}
+                    onComplete={handleSliderComplete}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* "Swipe to know more" — positioned below slider, doesn't affect layout */}
+            <AnimatePresence>
+              {showSwipeText && (
+                <motion.p
+                  key="swipe-text"
+                  className="absolute bottom-[8%] left-0 right-0 text-center text-black/70 text-lg md:text-2xl drop-shadow-md"
+                  style={{ fontFamily: "'Slight', cursive" }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                >
+                  Swipe to know more
+                </motion.p>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Slider overlay */}
-      <AnimatePresence>
-        {scene === "slider" && (
-          <motion.div
-            key="slider"
-            className="absolute inset-0 z-20 flex items-end justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="mb-[15%] w-full flex items-center justify-center">
-              <CoupleToggleSlider
-                casualSrc={coupleCasual}
-                traditionalSrc={coupleTraditional}
-                progress={progress}
-                onComplete={handleSliderComplete}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
     </div>
   );
 }
