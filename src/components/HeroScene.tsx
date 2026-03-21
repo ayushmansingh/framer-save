@@ -119,7 +119,7 @@ export default function HeroScene() {
               {showSlider && (
                 <motion.div
                   key="slider"
-                  className="absolute bottom-[15%] w-full flex items-center justify-center"
+                  className="absolute bottom-[20%] w-full flex items-center justify-center"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, ease: "easeOut" }}
@@ -142,7 +142,7 @@ export default function HeroScene() {
               {showSwipeText && (
                 <motion.p
                   key="swipe-text"
-                  className="absolute bottom-[8%] left-0 right-0 text-center text-black/70 text-lg md:text-2xl drop-shadow-md"
+                  className="absolute bottom-[13%] left-0 right-0 text-center text-black/70 text-lg md:text-2xl drop-shadow-md"
                   style={{ fontFamily: "'Slight', cursive" }}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}

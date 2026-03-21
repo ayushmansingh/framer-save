@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import HeroScene from "./components/HeroScene";
 import bgMusic from "./assets/BGMusic.mp3";
@@ -14,6 +14,22 @@ export default function App() {
     }
     setStarted(true);
   };
+
+  // Pause/resume audio when tab visibility changes
+  useEffect(() => {
+    const handleVisibility = () => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      if (document.hidden) {
+        audio.pause();
+      } else if (started) {
+        audio.play().catch(() => {});
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [started]);
 
   return (
     <>
