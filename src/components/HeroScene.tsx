@@ -1,69 +1,72 @@
 import { useState, useCallback, useRef } from "react";
 import { useMotionValue, AnimatePresence, motion } from "framer-motion";
-import skyBase from "../assets/Sky_Base.png";
 import coupleCasual from "../assets/Asset A.png";
 import coupleTraditional from "../assets/Asset B.png";
-import postSliderVideo from "../assets/PostSlider.mov";
-import ParallaxClouds from "./ParallaxClouds";
+import asset1Video from "../assets/Asset1.mp4";
+import assetBVideo from "../assets/AssetB.mp4";
 import CoupleToggleSlider from "./CoupleToggleSlider";
 
-type Scene = "hero" | "video";
+type Scene = "slider" | "video";
 
 export default function HeroScene() {
   const progress = useMotionValue(0);
-  const [scene, setScene] = useState<Scene>("hero");
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [scene, setScene] = useState<Scene>("slider");
+  const bgVideoRef = useRef<HTMLVideoElement>(null);
+  const assetBRef = useRef<HTMLVideoElement>(null);
 
   const handleSliderComplete = useCallback(() => {
-    // Play video from the user-gesture context (drag end)
-    // so the browser allows unmuted audio playback
-    const vid = videoRef.current;
+    // Pause looping background
+    const bgVid = bgVideoRef.current;
+    if (bgVid) {
+      bgVid.pause();
+    }
+
+    // Play AssetB video (muted — BG music handles audio)
+    const vid = assetBRef.current;
     if (vid) {
       vid.currentTime = 0;
-      vid.muted = false;
-      vid.play().catch(() => {
-        // fallback: play muted if browser still blocks
-        vid.muted = true;
-        vid.play();
-      });
+      vid.play();
     }
     setScene("video");
   }, []);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#1a3a5c]">
-      {/* Sky base — solid blue PNG over dark fallback */}
-      <img
-        src={skyBase}
-        alt=""
-        className="absolute inset-0 w-full h-full object-cover"
-        draggable={false}
+    <div className="relative w-full h-screen overflow-hidden bg-black">
+      {/* Part 1: Asset1 video looping as background */}
+      <video
+        ref={bgVideoRef}
+        src={asset1Video}
+        autoPlay
+        loop
+        muted
+        playsInline
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+          scene === "video" ? "opacity-0 pointer-events-none" : "opacity-100"
+        }`}
       />
 
-      {/* Video element always in DOM so ref is available during drag gesture */}
+      {/* Part 2: AssetB video — always in DOM for ref access */}
       <video
-        ref={videoRef}
-        src={postSliderVideo}
+        ref={assetBRef}
+        src={assetBVideo}
+        muted
         preload="auto"
         playsInline
-        className={`absolute inset-0 w-full h-full object-cover z-30 transition-opacity duration-700 ${
+        className={`absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-700 ${
           scene === "video" ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       />
 
+      {/* Slider overlay on top of looping video */}
       <AnimatePresence>
-        {scene === "hero" && (
+        {scene === "slider" && (
           <motion.div
-            key="hero"
-            className="absolute inset-0 flex flex-col items-center justify-center"
+            key="slider"
+            className="absolute inset-0 z-20 flex items-end justify-center"
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
           >
-            {/* Parallax cloud layers interspersed over the sky */}
-            <ParallaxClouds />
-
-            {/* Toggle slider — positioned in the bottom 25% */}
-            <div className="absolute bottom-[15%] z-20 w-full flex items-center justify-center">
+            <div className="mb-[15%] w-full flex items-center justify-center">
               <CoupleToggleSlider
                 casualSrc={coupleCasual}
                 traditionalSrc={coupleTraditional}
@@ -75,7 +78,7 @@ export default function HeroScene() {
         )}
       </AnimatePresence>
 
-      {/* Replay button over video */}
+      {/* Replay button over AssetB video */}
       <AnimatePresence>
         {scene === "video" && (
           <motion.button
@@ -90,13 +93,17 @@ export default function HeroScene() {
             exit={{ opacity: 0 }}
             transition={{ delay: 1, duration: 0.5 }}
             onClick={() => {
-              const vid = videoRef.current;
+              const vid = assetBRef.current;
               if (vid) {
                 vid.pause();
                 vid.currentTime = 0;
               }
+              const bgVid = bgVideoRef.current;
+              if (bgVid) {
+                bgVid.play();
+              }
               progress.set(0);
-              setScene("hero");
+              setScene("slider");
             }}
           >
             Replay
