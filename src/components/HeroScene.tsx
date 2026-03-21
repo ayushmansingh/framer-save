@@ -3,7 +3,7 @@ import { useMotionValue, AnimatePresence, motion } from "framer-motion";
 import skyBase from "../assets/Sky_Base.png";
 import coupleCasual from "../assets/Asset A.png";
 import coupleTraditional from "../assets/Asset B.png";
-import postSliderVideo from "../assets/PostSlider.mp4";
+import postSliderVideo from "../assets/PostSlider.mov";
 import ParallaxClouds from "./ParallaxClouds";
 import CoupleToggleSlider from "./CoupleToggleSlider";
 
