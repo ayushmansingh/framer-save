@@ -3,23 +3,18 @@ import { useMotionValue, AnimatePresence, motion } from "framer-motion";
 import skyBase from "../assets/Sky_Base.png";
 import coupleCasual from "../assets/Asset A.png";
 import coupleTraditional from "../assets/Asset B.png";
+import postSliderVideo from "../assets/PostSlider.mp4";
 import ParallaxClouds from "./ParallaxClouds";
 import CoupleToggleSlider from "./CoupleToggleSlider";
-import CloudPartTransition from "./CloudPartTransition";
-import MapReveal from "./MapReveal";
 
-type Scene = "hero" | "transitioning" | "revealed";
+type Scene = "hero" | "video";
 
 export default function HeroScene() {
   const progress = useMotionValue(0);
   const [scene, setScene] = useState<Scene>("hero");
 
   const handleSliderComplete = useCallback(() => {
-    setScene("transitioning");
-  }, []);
-
-  const handlePartComplete = useCallback(() => {
-    setScene("revealed");
+    setScene("video");
   }, []);
 
   return (
@@ -56,23 +51,23 @@ export default function HeroScene() {
         )}
       </AnimatePresence>
 
-      {/* Cloud parting transition */}
-      <CloudPartTransition
-        active={scene === "transitioning"}
-        onPartComplete={handlePartComplete}
-      />
-
-      {/* Map reveal */}
+      {/* Full-screen video after slider completes */}
       <AnimatePresence>
-        {scene === "revealed" && (
+        {scene === "video" && (
           <motion.div
-            key="revealed"
-            className="absolute inset-0"
+            key="video"
+            className="absolute inset-0 z-30"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.8 }}
           >
-            <MapReveal visible />
+            <video
+              src={postSliderVideo}
+              autoPlay
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
 
             <motion.button
               className="absolute bottom-10 left-1/2 -translate-x-1/2 z-40
